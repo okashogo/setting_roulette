@@ -3,13 +3,17 @@ import "@splidejs/react-splide/css"; // スタイルのインポート
 import rouletteBackground from "./images/roulette_background.jpg";
 import "./App.css";
 
-const gene7 = ["菊池", "斉藤", "高井", "朝永"];
-const gene0 = ["木塚", "加藤", "野村", "谷"];
+const gene7 = ["菊池", "斉藤", "高井", "朝永", "浅野", "丸添", "雨夜"];
+const gene0 = ["木塚", "加藤", "野村", "谷", "小野瀬", "坪井", "後藤"];
 const battle = [
   "叩いてかぶって",
   "インディアンポーカー",
   "スマブラ",
   "気配切り",
+  "リアルファイト",
+  "合宿代男気じゃんけん",
+  // "イントロクイズ",
+  "お絵描き対決",
 ];
 
 // const speedLimit = 70;
@@ -19,12 +23,15 @@ const App = () => {
   const [spinning1, setSpinning1] = useState<boolean>(false);
   const [spinning2, setSpinning2] = useState<boolean>(false);
   const [spinning3, setSpinning3] = useState<boolean>(false);
-  const [currentIndexs, setCurrentIndexs] = useState([0, 0, 0]); // 現在のスライドインデックス
+  const [currentIndexs, setCurrentIndexs] = useState([2, 2, 2]); // 現在のスライドインデックス
   const [speed, setSpeed] = useState(10000); // スライド速度（初期値: 1秒）
+  const [speedSetting, setSpeedSetting] = useState(10);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [stopIndex, setStopIndex] = useState(0);
-  const [resultIndexs, setResultIndexs] = useState([0, 0, 0]); // 停止したスライドインデックス
+  const [resultIndexs, setResultIndexs] = useState([2, 2, 2]); // 停止したスライドインデックス
   const [settingIndex, setSettingIndex] = useState(0);
+  const [stopIndexSetting, setStopIndexSetting] = useState(3);
+  const [diffIndexSetting, setDiffIndexSetting] = useState(1);
 
   const isRunning = useMemo(
     () => spinning1 || spinning2 || spinning3,
@@ -62,19 +69,51 @@ const App = () => {
   }, [speed, spinning1, spinning2, spinning3]);
 
   useEffect(() => {
-    if (stopIndex >= 3) {
+    if (
+      spinning1 === false &&
+      spinning2 === false &&
+      spinning3 === false &&
+      currentIndexs[0] === settingIndex &&
+      currentIndexs[1] === settingIndex &&
+      currentIndexs[2] === settingIndex
+    ) {
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
+
+    if (stopIndex >= stopIndexSetting) {
       setSpinning1(false);
-      setResultIndexs([settingIndex, 0, 0]);
-      setCurrentIndexs([settingIndex, 0, 0]);
-      if (stopIndex >= 4) {
+
+      // もっともcurrentIndexsに近い、gene7の倍数 + settingIndexを取得する。
+      const resultIndex =
+        (Math.round(currentIndexs[0] / 7) + 1) * 7 + settingIndex;
+      // console.log("resultIndex", resultIndex, currentIndexs[0]);
+      setResultIndexs([resultIndex, currentIndexs[1], currentIndexs[2]]);
+      setCurrentIndexs([resultIndex, currentIndexs[1], currentIndexs[2]]);
+      if (stopIndex >= stopIndexSetting + diffIndexSetting) {
         // 5秒後に2個目を停止し、10秒後に全てを停止する。
         setSpinning2(false);
-        setResultIndexs([settingIndex, settingIndex, 0]);
-        setCurrentIndexs([settingIndex, settingIndex, 0]);
-        if (stopIndex >= 5) {
+        const resultIndex2 =
+          (Math.round(currentIndexs[1] / 7) + 1) * 7 + settingIndex;
+        // console.log("resultIndex2", resultIndex2, currentIndexs[1]);
+        setResultIndexs([resultIndex, resultIndex2, currentIndexs[2]]);
+        setCurrentIndexs([resultIndex, resultIndex2, currentIndexs[2]]);
+        if (stopIndex >= stopIndexSetting + diffIndexSetting * 2) {
+          const resultIndex3 =
+            (Math.round(currentIndexs[2] / 7) + 1) * 7 + settingIndex;
+          // console.log("resultIndex3", resultIndex3, currentIndexs[2]);
           setSpinning3(false);
-          setResultIndexs([settingIndex, settingIndex, settingIndex]);
-          setCurrentIndexs([settingIndex, settingIndex, settingIndex]);
+          setResultIndexs([resultIndex, resultIndex2, resultIndex3]);
+          setCurrentIndexs([resultIndex, resultIndex2, resultIndex3]);
+
+          // 3秒後に全てをリセットする。
+          setTimeout(() => {
+            setCurrentIndexs([settingIndex, settingIndex, settingIndex]);
+            setResultIndexs([settingIndex, settingIndex, settingIndex]);
+            setStopIndex(settingIndex);
+
+            if (timerRef.current) clearInterval(timerRef.current);
+          }, 1000);
         }
       }
     }
@@ -83,6 +122,22 @@ const App = () => {
     }, 1000);
     return () => clearTimeout(slowDown);
   }, [isRunning, speed, stopIndex]);
+
+  // useEffect(() => {
+  //   if (
+  //     spinning1 === false &&
+  //     spinning2 === false &&
+  //     spinning3 === false &&
+  //     currentIndexs[0] === settingIndex &&
+  //     currentIndexs[1] === settingIndex &&
+  //     currentIndexs[2] === settingIndex
+  //   ) {
+  //     if (timerRef.current) clearInterval(timerRef.current);
+  //     return;
+  //   }
+  // }, [spinning1, spinning2, spinning3, currentIndexs]);
+
+  // console.log("Indexs", currentIndexs, resultIndexs);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -133,10 +188,12 @@ const App = () => {
         <button
           onClick={() => {
             if (isRunning) return;
+            setCurrentIndexs([2, 2, 2]);
+            setResultIndexs([2, 2, 2]);
             setSpinning1(true);
             setSpinning2(true);
             setSpinning3(true);
-            setSpeed(10);
+            setSpeed(speedSetting);
             setStopIndex(0);
           }}
           disabled={isRunning}
@@ -151,6 +208,53 @@ const App = () => {
           <div>1を押して回したら、高井 x 野村 x スマブラ</div>
           <div>2を押した回したら、朝永 x 谷 x 気配切り</div>
           <div>3を押して回したら、菊池 x 木塚 x 叩いてかぶって</div>
+        </div>
+        <div className="flex gap-4">
+          <div>スピード</div>
+          <select
+            value={speedSetting}
+            onChange={(e) => {
+              console.log("select", e.target.value);
+              setSpeedSetting(Number(e.target.value));
+            }}
+            className="w-[150px] h-[50px] text-black"
+          >
+            {Array.from({ length: 100 }, (_, i) => i * 10 + 100).map(
+              (value) => (
+                <option value={value}>1 / {value}倍</option>
+              )
+            )}
+          </select>
+        </div>
+        <div className="flex gap-4">
+          <div>停止時間</div>
+          <select
+            value={stopIndexSetting}
+            onChange={(e) => {
+              console.log("select", e.target.value);
+              setStopIndexSetting(Number(e.target.value));
+            }}
+            className="w-[150px] h-[50px] text-black"
+          >
+            {Array.from({ length: 10 }, (_, i) => i + 3).map((value) => (
+              <option value={value}>{value}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex gap-4">
+          <div>停止時間の差</div>
+          <select
+            value={diffIndexSetting}
+            onChange={(e) => {
+              console.log("select", e.target.value);
+              setDiffIndexSetting(Number(e.target.value));
+            }}
+            className="w-[150px] h-[50px] text-black"
+          >
+            {Array.from({ length: 5 }, (_, i) => i + 1).map((value) => (
+              <option value={value}>{value}</option>
+            ))}
+          </select>
         </div>
       </div>
       <img
@@ -208,9 +312,11 @@ const SlideBox = ({
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                fontSize: resultIndex + 1 === idx ? "24px" : "16px",
-                fontWeight: resultIndex + 1 === idx ? "bold" : "normal",
-                color: resultIndex + 1 === idx ? "gold" : "white",
+                fontSize:
+                  !spinning && resultIndex + 1 === idx ? "24px" : "16px",
+                fontWeight:
+                  !spinning && resultIndex + 1 === idx ? "bold" : "normal",
+                color: !spinning && resultIndex + 1 === idx ? "gold" : "white",
               }}
             >
               {item}
