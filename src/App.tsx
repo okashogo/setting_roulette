@@ -25,13 +25,13 @@ const App = () => {
   const [spinning3, setSpinning3] = useState<boolean>(false);
   const [currentIndexs, setCurrentIndexs] = useState([2, 2, 2]); // 現在のスライドインデックス
   const [speed, setSpeed] = useState(10000); // スライド速度（初期値: 1秒）
-  const [speedSetting, setSpeedSetting] = useState(10);
+  const [speedSetting, setSpeedSetting] = useState(230);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [stopIndex, setStopIndex] = useState(0);
   const [resultIndexs, setResultIndexs] = useState([2, 2, 2]); // 停止したスライドインデックス
   const [settingIndex, setSettingIndex] = useState(0);
   const [stopIndexSetting, setStopIndexSetting] = useState(3);
-  const [diffIndexSetting, setDiffIndexSetting] = useState(1);
+  const [diffIndexSetting, setDiffIndexSetting] = useState(2);
 
   const isRunning = useMemo(
     () => spinning1 || spinning2 || spinning3,
@@ -221,7 +221,9 @@ const App = () => {
           >
             {Array.from({ length: 100 }, (_, i) => i * 10 + 100).map(
               (value) => (
-                <option value={value}>1 / {value}倍</option>
+                <option value={value} selected={value === speedSetting}>
+                  1 / {value}倍
+                </option>
               )
             )}
           </select>
@@ -237,7 +239,9 @@ const App = () => {
             className="w-[150px] h-[50px] text-black"
           >
             {Array.from({ length: 10 }, (_, i) => i + 3).map((value) => (
-              <option value={value}>{value}</option>
+              <option value={value} selected={value === stopIndexSetting}>
+                {value}
+              </option>
             ))}
           </select>
         </div>
@@ -252,7 +256,9 @@ const App = () => {
             className="w-[150px] h-[50px] text-black"
           >
             {Array.from({ length: 5 }, (_, i) => i + 1).map((value) => (
-              <option value={value}>{value}</option>
+              <option value={value} selected={value === diffIndexSetting}>
+                {value}
+              </option>
             ))}
           </select>
         </div>
