@@ -48,7 +48,7 @@
     font-size: 30px;
     font-weight: bold;
     color: gold;
-    transition: all 1s ease;
+    transition: all 1s ease 0.5s;
   }
 
   &.no-selected-text {
