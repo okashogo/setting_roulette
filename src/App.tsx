@@ -3,11 +3,11 @@ import "@splidejs/react-splide/css"; // スタイルのインポート
 import rouletteBackground from "./images/roulette_background.jpg";
 import "./App.css";
 
-const gene7 = ["斉藤", "菊池", "高井", "朝永", "浅野", "丸添", "雨夜"];
-const gene0 = ["加藤", "木塚", "野村", "谷", "小野瀬", "坪井", "後藤"];
+const gene7 = ["菊地", "斉藤", "高井", "朝永", "浅野", "丸添", "雨夜"];
+const gene0 = ["木塚", "加藤", "野村", "谷", "小野瀬", "坪井", "後藤"];
 const battle = [
-  "インディアンポーカー",
   "叩いてかぶって",
+  "インディアンポーカー",
   "スマブラ",
   "気配切り",
   "リアルファイト",
