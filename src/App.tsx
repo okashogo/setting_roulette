@@ -25,7 +25,7 @@ const App = () => {
   const [spinning3, setSpinning3] = useState<boolean>(false);
   const [currentIndexs, setCurrentIndexs] = useState([2, 2, 2]); // 現在のスライドインデックス
   const [speed, setSpeed] = useState(10000); // スライド速度（初期値: 1秒）
-  const [speedSetting, setSpeedSetting] = useState(200);
+  const [speedSetting, setSpeedSetting] = useState(300);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [stopIndex, setStopIndex] = useState(0);
   // console.log("stopIndex", stopIndex);
@@ -37,7 +37,7 @@ const App = () => {
   // console.log("resultIndexs", resultIndexs, currentIndexs);
   const [settingIndex, setSettingIndex] = useState(0);
   const [stopIndexSetting, setStopIndexSetting] = useState(3);
-  const [diffIndexSetting, setDiffIndexSetting] = useState(5);
+  const [diffIndexSetting, setDiffIndexSetting] = useState(7);
 
   const isRunning = useMemo(
     () => spinning1 || spinning2 || spinning3,
@@ -78,7 +78,7 @@ const App = () => {
   }, [speed, spinning1, spinning2, spinning3]);
 
   useEffect(() => {
-    console.log("resultIndexs", resultIndexs, currentIndexs);
+    console.log("resultIndexs", settingIndex, resultIndexs, currentIndexs);
     // console.log("stopIndex", stopIndex);
     if (
       spinning1 === false &&
@@ -101,37 +101,30 @@ const App = () => {
     // );
     if (
       currentIndexs[0] >= stopIndexSetting + diffIndexSetting &&
-      currentIndexs[0] % 7 === stopIndexSetting
+      (currentIndexs[0] - 2) % 7 === stopIndexSetting
     ) {
-      console.log(
-        "aaa",
-        stopIndex,
-        stopIndexSetting,
-        settingIndex,
-        currentIndexs.map((c) => c % 7)
-      );
       setSpinning1(false);
 
       // もっともcurrentIndexsに近い、gene7の倍数 + settingIndexを取得する。
       const resultIndex =
-        (Math.round(currentIndexs[0] / 7) + 1) * 7 + settingIndex;
+        Math.round(currentIndexs[0] / 7) * 7 + settingIndex - 7;
       // console.log("currentIndexs", currentIndexs[0], resultIndex);
       setResultIndexs([resultIndex, -1, -1]);
       if (
         currentIndexs[1] >= stopIndexSetting + diffIndexSetting * 2 &&
-        currentIndexs[1] % 7 === stopIndexSetting
+        (currentIndexs[1] - 2) % 7 === stopIndexSetting
       ) {
         // 5秒後に2個目を停止し、10秒後に全てを停止する。
         setSpinning2(false);
         const resultIndex2 =
-          (Math.round(currentIndexs[1] / 7) + 1) * 7 + settingIndex;
+          Math.round(currentIndexs[1] / 7) * 7 + settingIndex - 7;
         setResultIndexs([resultIndexs[0], resultIndex2, -1]);
         if (
           currentIndexs[2] >= stopIndexSetting + diffIndexSetting * 3 &&
-          currentIndexs[2] % 7 === stopIndexSetting
+          (currentIndexs[2] - 2) % 7 === stopIndexSetting
         ) {
           const resultIndex3 =
-            (Math.round(currentIndexs[2] / 7) + 1) * 7 + settingIndex;
+            Math.round(currentIndexs[2] / 7) * 7 + settingIndex - 7;
           setSpinning3(false);
           setResultIndexs([resultIndexs[0], resultIndexs[1], resultIndex3]);
 
