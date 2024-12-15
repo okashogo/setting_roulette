@@ -36,3 +36,25 @@
     transform: rotate(360deg);
   }
 }
+
+.text-option {
+  background: grey;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &.selected-text {
+    font-size: 30px;
+    font-weight: bold;
+    color: gold;
+    transition: all 1s ease;
+  }
+
+  &.no-selected-text {
+    font-size: 24px;
+    font-weight: normal;
+    color: white;
+    transition: all 0.5s ease;
+  }
+}

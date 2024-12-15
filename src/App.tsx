@@ -3,17 +3,17 @@ import "@splidejs/react-splide/css"; // スタイルのインポート
 import rouletteBackground from "./images/roulette_background.jpg";
 import "./App.css";
 
-const gene7 = ["菊池", "斉藤", "高井", "朝永", "浅野", "丸添", "雨夜"];
-const gene0 = ["木塚", "加藤", "野村", "谷", "小野瀬", "坪井", "後藤"];
+const gene7 = ["斉藤", "菊池", "高井", "朝永", "浅野", "丸添", "雨夜"];
+const gene0 = ["加藤", "木塚", "野村", "谷", "小野瀬", "坪井", "後藤"];
 const battle = [
-  "叩いてかぶって",
   "インディアンポーカー",
+  "叩いてかぶって",
   "スマブラ",
   "気配切り",
   "リアルファイト",
   "合宿代男気じゃんけん",
-  // "イントロクイズ",
   "お絵描き対決",
+  // "イントロクイズ",
 ];
 
 // const speedLimit = 70;
@@ -25,13 +25,19 @@ const App = () => {
   const [spinning3, setSpinning3] = useState<boolean>(false);
   const [currentIndexs, setCurrentIndexs] = useState([2, 2, 2]); // 現在のスライドインデックス
   const [speed, setSpeed] = useState(10000); // スライド速度（初期値: 1秒）
-  const [speedSetting, setSpeedSetting] = useState(230);
+  const [speedSetting, setSpeedSetting] = useState(200);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [stopIndex, setStopIndex] = useState(0);
-  const [resultIndexs, setResultIndexs] = useState([2, 2, 2]); // 停止したスライドインデックス
+  // console.log("stopIndex", stopIndex);
+  const [resultIndexs, setResultIndexs] = useState<(number | null)[]>([
+    null,
+    null,
+    null,
+  ]); // 停止したスライドインデックス
+  // console.log("resultIndexs", resultIndexs, currentIndexs);
   const [settingIndex, setSettingIndex] = useState(0);
   const [stopIndexSetting, setStopIndexSetting] = useState(3);
-  const [diffIndexSetting, setDiffIndexSetting] = useState(2);
+  const [diffIndexSetting, setDiffIndexSetting] = useState(5);
 
   const isRunning = useMemo(
     () => spinning1 || spinning2 || spinning3,
@@ -44,18 +50,21 @@ const App = () => {
       return;
     }
     if (spinning1 === true) {
+      // if (spinning1 === true || currentIndexs[0] % 7 === settingIndex) {
       timerRef.current = setInterval(() => {
         setCurrentIndexs((prevIndexs) => {
           return prevIndexs.map((prevIndex) => prevIndex + 1);
         }); // 次のスライドに進む
       }, speed);
     } else if (spinning2 === true) {
+      // } else if (spinning2 === true || currentIndexs[1] % 7 === settingIndex) {
       timerRef.current = setInterval(() => {
         setCurrentIndexs((prevIndexs) => {
           return [prevIndexs[0], prevIndexs[1] + 1, prevIndexs[2] + 1];
         }); // 次のスライドに進む
       }, speed);
     } else if (spinning3 === true) {
+      // } else if (spinning3 === true || currentIndexs[2] % 7 === settingIndex) {
       timerRef.current = setInterval(() => {
         setCurrentIndexs((prevIndexs) => {
           return [prevIndexs[0], prevIndexs[1], prevIndexs[2] + 1];
@@ -69,6 +78,8 @@ const App = () => {
   }, [speed, spinning1, spinning2, spinning3]);
 
   useEffect(() => {
+    console.log("resultIndexs", resultIndexs, currentIndexs);
+    // console.log("stopIndex", stopIndex);
     if (
       spinning1 === false &&
       spinning2 === false &&
@@ -81,74 +92,94 @@ const App = () => {
       return;
     }
 
-    if (stopIndex >= stopIndexSetting) {
+    // console.log(
+    //   "8888",
+    //   stopIndex,
+    //   stopIndexSetting,
+    //   currentIndexs[0] % 7,
+    //   stopIndexSetting
+    // );
+    if (
+      currentIndexs[0] >= stopIndexSetting + diffIndexSetting &&
+      currentIndexs[0] % 7 === stopIndexSetting
+    ) {
+      console.log(
+        "aaa",
+        stopIndex,
+        stopIndexSetting,
+        settingIndex,
+        currentIndexs.map((c) => c % 7)
+      );
       setSpinning1(false);
 
       // もっともcurrentIndexsに近い、gene7の倍数 + settingIndexを取得する。
       const resultIndex =
         (Math.round(currentIndexs[0] / 7) + 1) * 7 + settingIndex;
-      // console.log("resultIndex", resultIndex, currentIndexs[0]);
-      setResultIndexs([resultIndex, currentIndexs[1], currentIndexs[2]]);
-      setCurrentIndexs([resultIndex, currentIndexs[1], currentIndexs[2]]);
-      if (stopIndex >= stopIndexSetting + diffIndexSetting) {
+      // console.log("currentIndexs", currentIndexs[0], resultIndex);
+      setResultIndexs([resultIndex, -1, -1]);
+      if (
+        currentIndexs[1] >= stopIndexSetting + diffIndexSetting * 2 &&
+        currentIndexs[1] % 7 === stopIndexSetting
+      ) {
         // 5秒後に2個目を停止し、10秒後に全てを停止する。
         setSpinning2(false);
         const resultIndex2 =
           (Math.round(currentIndexs[1] / 7) + 1) * 7 + settingIndex;
-        // console.log("resultIndex2", resultIndex2, currentIndexs[1]);
-        setResultIndexs([resultIndex, resultIndex2, currentIndexs[2]]);
-        setCurrentIndexs([resultIndex, resultIndex2, currentIndexs[2]]);
-        if (stopIndex >= stopIndexSetting + diffIndexSetting * 2) {
+        setResultIndexs([resultIndexs[0], resultIndex2, -1]);
+        if (
+          currentIndexs[2] >= stopIndexSetting + diffIndexSetting * 3 &&
+          currentIndexs[2] % 7 === stopIndexSetting
+        ) {
           const resultIndex3 =
             (Math.round(currentIndexs[2] / 7) + 1) * 7 + settingIndex;
-          // console.log("resultIndex3", resultIndex3, currentIndexs[2]);
           setSpinning3(false);
-          setResultIndexs([resultIndex, resultIndex2, resultIndex3]);
-          setCurrentIndexs([resultIndex, resultIndex2, resultIndex3]);
+          setResultIndexs([resultIndexs[0], resultIndexs[1], resultIndex3]);
 
           // 3秒後に全てをリセットする。
           setTimeout(() => {
             setCurrentIndexs([settingIndex, settingIndex, settingIndex]);
-            setResultIndexs([settingIndex, settingIndex, settingIndex]);
             setStopIndex(settingIndex);
 
             if (timerRef.current) clearInterval(timerRef.current);
+            // }, 10000);
           }, 1000);
         }
       }
     }
-    const slowDown = setTimeout(() => {
-      setStopIndex(stopIndex + 1);
-    }, 1000);
-    return () => clearTimeout(slowDown);
-  }, [isRunning, speed, stopIndex]);
+    // const slowDown = setTimeout(() => {
+    //   setStopIndex(stopIndex + 1);
+    // }, 1000);
+    // return () => clearTimeout(slowDown);
+  }, [isRunning, speed, currentIndexs]);
 
-  // useEffect(() => {
-  //   if (
-  //     spinning1 === false &&
-  //     spinning2 === false &&
-  //     spinning3 === false &&
-  //     currentIndexs[0] === settingIndex &&
-  //     currentIndexs[1] === settingIndex &&
-  //     currentIndexs[2] === settingIndex
-  //   ) {
-  //     if (timerRef.current) clearInterval(timerRef.current);
-  //     return;
-  //   }
-  // }, [spinning1, spinning2, spinning3, currentIndexs]);
-
-  // console.log("Indexs", currentIndexs, resultIndexs);
+  const handleStart = () => {
+    if (isRunning) return;
+    setCurrentIndexs([2, 2, 2]);
+    setResultIndexs([-1, -1, -1]);
+    setSpinning1(true);
+    setSpinning2(true);
+    setSpinning3(true);
+    setSpeed(speedSetting);
+    setStopIndex(0);
+  };
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "0") {
-        setSettingIndex(0);
-      } else if (event.key === "1") {
-        setSettingIndex(1);
+      if (event.key === "1") {
+        console.log("click 1");
+        setSettingIndex(0 - 1);
       } else if (event.key === "2") {
-        setSettingIndex(2);
+        console.log("click 2");
+        setSettingIndex(1 - 1);
       } else if (event.key === "3") {
-        setSettingIndex(3);
+        console.log("click 3");
+        setSettingIndex(2 - 1);
+      } else if (event.key === "4") {
+        console.log("click 4");
+        setSettingIndex(3 - 1);
+      } else if (event.key === "Enter") {
+        console.log("click Enter");
+        handleStart();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -157,9 +188,9 @@ const App = () => {
 
   return (
     <div className="container w-full h-full mx-auto">
-      <div className="min-h-screen text-white flex flex-col justify-center items-center space-y-8 z-10 relative">
-        <h1 className="text-4xl font-bold">ルーレット</h1>
-        <div className="flex gap-[60px]">
+      <div className="min-h-screen text-white flex flex-col justify-center items-center z-10 relative">
+        <h1 className="font-bold text-[50px] mb-[60px]">ルーレット</h1>
+        <div className="flex gap-[100px]">
           <div className="reel-container">
             <SlideBox
               currentIndexs={currentIndexs[0]}
@@ -186,30 +217,21 @@ const App = () => {
           </div>
         </div>
         <button
-          onClick={() => {
-            if (isRunning) return;
-            setCurrentIndexs([2, 2, 2]);
-            setResultIndexs([2, 2, 2]);
-            setSpinning1(true);
-            setSpinning2(true);
-            setSpinning3(true);
-            setSpeed(speedSetting);
-            setStopIndex(0);
-          }}
+          onClick={handleStart}
           disabled={isRunning}
-          className={`px-6 py-3 bg-yellow-500 w-40 text-black font-bold rounded ${
+          className={`mt-[70px] px-6 py-3 bg-yellow-500 w-[500px] h-[60px] text-black font-bold text-2xl rounded ${
             isRunning ? "opacity-50 cursor-not-allowed" : "hover:bg-yellow-600"
           }`}
         >
           {isRunning ? "Spinning..." : "START"}
         </button>
-        <div>
-          <div>0を押した回したら、斉藤 x 加藤 x インディアンポーカー</div>
-          <div>1を押して回したら、高井 x 野村 x スマブラ</div>
-          <div>2を押した回したら、朝永 x 谷 x 気配切り</div>
-          <div>3を押して回したら、菊池 x 木塚 x 叩いてかぶって</div>
-        </div>
-        <div className="flex gap-4">
+        {/* <div>
+          <div>1を押した回したら、斉藤 x 加藤 x インディアンポーカー</div>
+          <div>2を押して回したら、菊池 x 木塚 x 叩いてかぶって</div>
+          <div>3を押して回したら、高井 x 野村 x スマブラ</div>
+          <div>4を押した回したら、朝永 x 谷 x 気配切り</div>
+        </div> */}
+        {/* <div className="flex gap-4">
           <div>スピード</div>
           <select
             value={speedSetting}
@@ -261,7 +283,7 @@ const App = () => {
               </option>
             ))}
           </select>
-        </div>
+        </div> */}
       </div>
       <img
         src={rouletteBackground}
@@ -286,7 +308,7 @@ const SlideBox = ({
   currentIndexs: number;
   datas: string[];
   spinning: boolean;
-  resultIndex: number;
+  resultIndex: number | null;
 }) => {
   return (
     <div
@@ -300,9 +322,12 @@ const SlideBox = ({
         style={{
           display: "flex",
           transition: spinning ? `transform 0.5s ease` : "none",
-          transform: spinning
-            ? `translateY(-${currentIndexs * 100}px)`
-            : `translateY(-${resultIndex * 100}px)`,
+          transform:
+            resultIndex !== null
+              ? spinning
+                ? `translateY(-${currentIndexs * 100 + 100}px)`
+                : `translateY(-${resultIndex * 100 + 600}px)`
+              : "",
           flexDirection: "column",
         }}
       >
@@ -311,21 +336,15 @@ const SlideBox = ({
           .flat()
           .map((item, idx) => (
             <div
-              key={idx}
-              style={{
-                background: "grey",
-                height: "100px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                fontSize:
-                  !spinning && resultIndex + 1 === idx ? "24px" : "16px",
-                fontWeight:
-                  !spinning && resultIndex + 1 === idx ? "bold" : "normal",
-                color: !spinning && resultIndex + 1 === idx ? "gold" : "white",
-              }}
+              key={resultIndex ? resultIndex - idx : idx}
+              className={`text-option ${
+                !spinning && resultIndex && resultIndex! + 1 === idx - 7
+                  ? "selected-text"
+                  : "no-selected-text"
+              }`}
             >
               {item}
+              {/* <span className="text-[15px] ml-2">{idx}</span> */}
             </div>
           ))}
       </div>
