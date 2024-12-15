@@ -314,7 +314,9 @@ const SlideBox = ({
       <div
         style={{
           display: "flex",
-          transition: spinning ? `transform 0.5s ease` : "none",
+          transition: spinning
+            ? `transform 1s cubic-bezier(0.25, 0.1, 0.25, 1)`
+            : "translateY(0)",
           transform:
             resultIndex !== null
               ? spinning
@@ -322,6 +324,7 @@ const SlideBox = ({
                 : `translateY(-${resultIndex * 100 + 600}px)`
               : "",
           flexDirection: "column",
+          willChange: "transform", // 最適化ヒント
         }}
       >
         {Array(200)
